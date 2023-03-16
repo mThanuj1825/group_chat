@@ -1,16 +1,18 @@
 import socket
 import threading
 
-HOST = "127.0.0.1"
-PORT = 55555
+HOST = "127.0.0.1"  # the host ip address
+PORT = 55555  # port on which the hosting is taking place
 ADDRESS = (HOST, PORT)
-FORMAT = "utf-8"
+FORMAT = "utf-8"  # format in which encoding and decoding should take place
 
+# creates a 'server' socket through which we can communicate further
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# binds the 'server' socket to the given ip address and host port
 server.bind(ADDRESS)
-server.listen()
+server.listen()  # server starts to listen for connections
 
-connected_clients = {}
+connected_clients = {}  # dictionary holds the connected clients and their usernames
 
 
 def broadcast_message(sender_client, message):
@@ -43,12 +45,16 @@ def handle_client(client):
 
 def main():
     global connected_clients
-    while True:
-        client, client_address = server.accept()
-        connected_clients[client] = ""
+    try:
+        while True:
+            client, client_address = server.accept()
+            connected_clients[client] = ""
 
-        client_thread = threading.Thread(target=handle_client, args=(client, ))
-        client_thread.start()
+            client_thread = threading.Thread(
+                target=handle_client, args=(client, ))
+            client_thread.start()
 
-        print(
-            f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")
+            print(
+                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")
+    except KeyboardInterrupt:
+        print("Server stopped.")
