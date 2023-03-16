@@ -9,11 +9,13 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDRESS)
 server.listen()
 
-connected_clients = []
+connected_clients = {}
 
 
 def broadcast_message(message):
-    pass
+    global connected_clients
+    for client in connected_clients:
+        client.send(message)
 
 
 def handle_client(client):
@@ -21,4 +23,9 @@ def handle_client(client):
 
 
 def main():
-    pass
+    global connected_clients
+    client, client_address = server.accept()
+    connected_clients[client] = ""
+
+    client_thread = threading.Thread(target=handle_client, args=(client, ))
+    client_thread.start()
