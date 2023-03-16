@@ -29,3 +29,5 @@ def main():
 
     client_thread = threading.Thread(target=handle_client, args=(client, ))
     client_thread.start()
+
+    print(f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")
