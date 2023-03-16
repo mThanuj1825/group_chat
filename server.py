@@ -1,7 +1,7 @@
 import socket
 import threading
 
-HOST = "127.0.0.1"  # the host ip address
+HOST = socket.gethostbyname(socket.gethostname())  # the host ip address
 PORT = 55555  # port on which the hosting is taking place
 ADDRESS = (HOST, PORT)
 FORMAT = "utf-8"  # format in which encoding and decoding should take place
@@ -83,4 +83,8 @@ This function is used to run the main loop of the server
             print(
                 f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
     except KeyboardInterrupt:
-        print("Server stopped.")
+        print("[SERVER] Server terminated")
+
+
+print(f"[SERVER] Server started")
+main()
