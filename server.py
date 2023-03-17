@@ -35,10 +35,11 @@ def handle_client(client):
 This function is used to handle the connections with individual clients
 -> Recieves the first message as username
 -> Infinitely listens for any message recieved by the client
--> Broadcasts teh message to all the clients on the server
+-> Broadcasts the message to all the clients on the server
     '''
     global connected_clients
     # consider the first message sent to the server as a username of the client
+    client.send("Enter your username: ".encode(FORMAT))
     username = client.recv(1024).decode(FORMAT)
     # add an entry of the client with their respective username in the dictionary
     connected_clients[client] = username
@@ -112,13 +113,13 @@ This function is used to run the main loop of the server
             client_thread.start()  # start the client thread for the parallel execution of the clients
 
             print(
-                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
+                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after addition
         except:
             print(f"[SERVER] Stopping the server...")
             print(f"[SERVER] Server closed")
 
 
-print(f"[SERVER] Server started")
+print(f"[SERVER] Server started at {ADDRESS}")
 main_thread = threading.Thread(target=main)
 main_thread.start()
 
