@@ -117,6 +117,7 @@ This function is used to run the main loop of the server
             print(f"[SERVER] Stopping the server...")
             print(f"[SERVER] Server closed")
 
+
 print(f"[SERVER] Server started")
 main_thread = threading.Thread(target=main)
 main_thread.start()
@@ -125,4 +126,3 @@ main_thread.start()
 stop_event = threading.Event()
 server_command_thread = threading.Thread(target=server_commands)
 server_command_thread.start()
-
