@@ -6,6 +6,7 @@ PORT = 55555  # port on which the hosting is taking place
 ADDRESS = (HOST, PORT)
 FORMAT = "utf-8"  # format in which encoding and decoding should take place
 DISCONNECT = "/dc"
+server_running = True
 
 # creates a 'server' socket through which we can communicate further
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -74,16 +75,17 @@ def server_commands():
     '''
 This function handles the stoppage of the server by a specific command
     '''
-    global server, connected_clients
+    global server, connected_clients, server_running
     while True:
         command = input("[COMMAND] ")
         if command == "/tnt":
+            server_running = False
+            server.close()
             if len(connected_clients) != 0:
                 for client in connected_clients:
                     client.close()
             print("[SERVER] Stopping the server...")
-            server.close()
-            exit(0)
+            break
         else:
             print("[SERVER] Unknown command")
 
@@ -96,8 +98,10 @@ This function is used to run the main loop of the server
 -> Each client is given a thread for parallel processing
 -> Can be terminated using keyboardInterrupt
     '''
-    global connected_clients
-    while True:
+    global connected_clients, server_running
+    while server_running:
+        if not server_running:
+            break
         # accept new client connection and returns the client socket and its ip address
         client, client_address = server.accept()
         # adds an entry of the client in the dictionary
@@ -111,9 +115,11 @@ This function is used to run the main loop of the server
             f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
 
 
-server_command_thread = threading.Thread(target=server_commands)
-server_command_thread.start()
-
 print(f"[SERVER] Server started")
 main_thread = threading.Thread(target=main)
 main_thread.start()
+
+
+stop_event = threading.Event()
+server_command_thread = threading.Thread(target=server_commands)
+server_command_thread.start()
