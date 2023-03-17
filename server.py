@@ -84,7 +84,6 @@ This function handles the stoppage of the server by a specific command
             if len(connected_clients) != 0:
                 for client in connected_clients:
                     client.close()
-            print("[SERVER] Stopping the server...")
             break
         else:
             print("[SERVER] Unknown command")
@@ -100,20 +99,23 @@ This function is used to run the main loop of the server
     '''
     global connected_clients, server_running
     while server_running:
-        if not server_running:
-            break
-        # accept new client connection and returns the client socket and its ip address
-        client, client_address = server.accept()
-        # adds an entry of the client in the dictionary
-        connected_clients[client] = ""
+        try:
+            if not server_running:
+                break
+            # accept new client connection and returns the client socket and its ip address
+            client, client_address = server.accept()
+            # adds an entry of the client in the dictionary
+            connected_clients[client] = ""
 
-        client_thread = threading.Thread(
-            target=handle_client, args=(client, ))  # create a thread for every client addded in the server
-        client_thread.start()  # start the client thread for the parallel execution of the clients
+            client_thread = threading.Thread(
+                target=handle_client, args=(client, ))  # create a thread for every client addded in the server
+            client_thread.start()  # start the client thread for the parallel execution of the clients
 
-        print(
-            f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
-
+            print(
+                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
+        except:
+            print(f"[SERVER] Stopping the server...")
+            print(f"[SERVER] Server closed")
 
 print(f"[SERVER] Server started")
 main_thread = threading.Thread(target=main)
@@ -123,3 +125,4 @@ main_thread.start()
 stop_event = threading.Event()
 server_command_thread = threading.Thread(target=server_commands)
 server_command_thread.start()
+
