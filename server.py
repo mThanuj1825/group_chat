@@ -5,6 +5,7 @@ HOST = socket.gethostbyname(socket.gethostname())  # the host ip address
 PORT = 55555  # port on which the hosting is taking place
 ADDRESS = (HOST, PORT)
 FORMAT = "utf-8"  # format in which encoding and decoding should take place
+DISCONNECT = "/dc"
 
 # creates a 'server' socket through which we can communicate further
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,10 +47,19 @@ This function is used to handle the connections with individual clients
         try:  # try recieving a message or else disconnect the client
             message = client.recv(1024).decode(FORMAT)
             if message:  # only if message is not None, we will decode and broadcast it to all the clients
+                if message == DISCONNECT:
+                    print(f"[DISCONNECTED] {username} disconnected.")
+                    # delete the disconnected ckient entry from the dictionary
+                    del connected_clients[client]
+                    broadcast_message(client,
+                                      f"[SERVER] {username} has left the chat.".encode(FORMAT))  # send the disconnected message to all the clients on the servers
+                    print(
+                        f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after deletion
+                    break
                 print(f"[{username}] {message}")
                 broadcast_message(
                     client, f"[{username}] {message}".encode(FORMAT))
-        except:
+        except ConnectionResetError:
             print(f"[DISCONNECTED] {username} disconnected.")
             # delete the disconnected ckient entry from the dictionary
             del connected_clients[client]
@@ -58,6 +68,24 @@ This function is used to handle the connections with individual clients
             print(
                 f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after deletion
             break
+
+
+def server_commands():
+    '''
+This function handles the stoppage of the server by a specific command
+    '''
+    global server, connected_clients
+    while True:
+        command = input("[COMMAND] ")
+        if command == "/tnt":
+            if len(connected_clients) != 0:
+                for client in connected_clients:
+                    client.close()
+            print("[SERVER] Stopping the server...")
+            server.close()
+            exit(0)
+        else:
+            print("[SERVER] Unknown command")
 
 
 def main():
@@ -69,22 +97,23 @@ This function is used to run the main loop of the server
 -> Can be terminated using keyboardInterrupt
     '''
     global connected_clients
-    try:
-        while True:
-            # accept new client connection and returns the client socket and its ip address
-            client, client_address = server.accept()
-            # adds an entry of the client in the dictionary
-            connected_clients[client] = ""
+    while True:
+        # accept new client connection and returns the client socket and its ip address
+        client, client_address = server.accept()
+        # adds an entry of the client in the dictionary
+        connected_clients[client] = ""
 
-            client_thread = threading.Thread(
-                target=handle_client, args=(client, ))  # create a thread for every client addded in the server
-            client_thread.start()  # start the client thread for the parallel execution of the clients
+        client_thread = threading.Thread(
+            target=handle_client, args=(client, ))  # create a thread for every client addded in the server
+        client_thread.start()  # start the client thread for the parallel execution of the clients
 
-            print(
-                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
-    except KeyboardInterrupt:
-        print("[SERVER] Server terminated")
+        print(
+            f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after addition
 
+
+server_command_thread = threading.Thread(target=server_commands)
+server_command_thread.start()
 
 print(f"[SERVER] Server started")
-main()
+main_thread = threading.Thread(target=main)
+main_thread.start()
