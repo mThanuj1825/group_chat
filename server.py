@@ -63,7 +63,7 @@ This function is used to handle the connections with individual clients
                     client, f"[{username}] {message}".encode(FORMAT))
         except ConnectionResetError:
             print(f"[DISCONNECTED] {username} disconnected.")
-            # delete the disconnected ckient entry from the dictionary
+            # delete the disconnected client entry from the dictionary
             del connected_clients[client]
             broadcast_message(client,
                               f"[SERVER] {username} has left the chat.".encode(FORMAT))  # send the disconnected message to all the clients on the servers
