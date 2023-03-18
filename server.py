@@ -39,29 +39,33 @@ This function is used to handle the connections with individual clients
     '''
     global connected_clients
     # consider the first message sent to the server as a username of the client
+    connected = True
     client.send("Enter your username: ".encode(FORMAT))
     username = client.recv(1024).decode(FORMAT)
     # add an entry of the client with their respective username in the dictionary
     connected_clients[client] = username
     print(f"[NEW CONNECTION] {username} connected.")
+    broadcast_message(client, f"[NEW USER] {username} joined the chat room.\n".encode(FORMAT))
 
-    while True:  # infinite loop to recieve messages until there is an error or termination of the client socket
+    while connected:  # infinite loop to recieve messages until there is an error or termination of the client socket
         try:  # try recieving a message or else disconnect the client
             message = client.recv(1024).decode(FORMAT)
             if message:  # only if message is not None, we will decode and broadcast it to all the clients
                 if message == DISCONNECT:
+                    connected = False
                     print(f"[DISCONNECTED] {username} disconnected.")
                     # delete the disconnected ckient entry from the dictionary
                     del connected_clients[client]
                     broadcast_message(client,
                                       f"[SERVER] {username} has left the chat.".encode(FORMAT))  # send the disconnected message to all the clients on the servers
                     print(
-                        f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after deletion
+                        f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after deletion
                     break
                 print(f"[{username}] {message}")
                 broadcast_message(
                     client, f"[{username}] {message}".encode(FORMAT))
         except ConnectionResetError:
+            connected = False
             print(f"[DISCONNECTED] {username} disconnected.")
             # delete the disconnected client entry from the dictionary
             del connected_clients[client]

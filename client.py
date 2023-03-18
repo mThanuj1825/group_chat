@@ -8,7 +8,7 @@ ADDRESS = None
 FORMAT = "utf-8"  # format in which encoding and decoding should take place
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+server_connected = False
 
 root = tkinter.Tk()
 
@@ -19,21 +19,33 @@ input_area = tkinter.Entry(root)
 
 
 def send_message():
-    pass
+    global client
+    message = input_area.get()
+    input_area.delete(0, 'end')
+    client.send(message.encode(FORMAT))
 
 
 def connect_to_server():
+    global ADDRESS, client
     host_ip = input_area.get()
     input_area.delete(0, 'end')
     ADDRESS = (host_ip, PORT)
     client.connect(ADDRESS)
     connect_button.destroy()
+    server_connected = True
 
 
-def receive_messages():
+def recieve_messages():
+    global client
     while True:
-        msg = client.recv(1024).decode(FORMAT)
-        output_area.insert(tkinter.END, msg)
+        try:
+            if client and server_connected:
+                msg = client.recv(1024).decode(FORMAT)
+                output_area.config(state="normal")
+                output_area.insert(tkinter.END, msg)
+                output_area.config(state="disabled")
+        except ConnectionAbortedError:
+            break
 
 
 send_button = tkinter.Button(root, text='Send', command=send_message)
@@ -41,12 +53,12 @@ connect_button = tkinter.Button(
     root, text='Connect', command=connect_to_server)
 
 output_area.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-input_area.grid(row=1, column=0, padx=5, pady=5)
+input_area.grid(row=1, column=0, columnspan=2,padx=5, pady=5)
 send_button.grid(row=1, column=1, padx=5, pady=5)
 connect_button.grid(row=2, column=0, padx=5, pady=5)
 
 
-recieve_thread = threading.Thread(target=receive_messages)
+recieve_thread = threading.Thread(target=recieve_messages)
 recieve_thread.start()
 
 
