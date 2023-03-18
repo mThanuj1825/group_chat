@@ -31,8 +31,8 @@ It takes 2 arguments
         if client != sender_client:  # only send message if client is not the sender_client
             client.send(message)
         else:
-            if not message.startswith("[NEW USER]"):
-                client.send(f"[YOU] {message.decode(FORMAT)}\n".encode(FORMAT))
+            if not message.decode().startswith("[NEW USER]"):
+                client.send(f"{message.decode(FORMAT)}".encode(FORMAT))
 
 
 def handle_client(client):
@@ -51,6 +51,7 @@ This function is used to handle the connections with individual clients
         username = client.recv(1024).decode(FORMAT)
         # add an entry of the client with their respective username in the dictionary
         connected_clients[client] = username
+        client.send((username + "\n").encode(FORMAT))
         print(f"[NEW CONNECTION] {username} connected.")
         broadcast_message(
             client, f"[NEW USER] {username} joined the chat room.\n".encode(FORMAT))
@@ -73,14 +74,14 @@ This function is used to handle the connections with individual clients
                     break
                 print(f"[{username}] {message}")
                 broadcast_message(
-                    client, f"[{username}] {message}".encode(FORMAT))
+                    client, f"[{username}] {message}\n".encode(FORMAT))
         except ConnectionResetError:
             connected = False
             print(f"[DISCONNECTED] {username} disconnected.")
             # delete the disconnected client entry from the dictionary
             del connected_clients[client]
             broadcast_message(client,
-                              f"[SERVER] {username} has left the chat.".encode(FORMAT))  # send the disconnected message to all the clients on the servers
+                              f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
             print(
                 f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after deletion
             break
@@ -113,6 +114,10 @@ This function is used to run the main loop of the server
 -> Can be terminated using keyboardInterrupt
     '''
     global connected_clients, server_running
+    server_command_thread = threading.Thread(
+        target=server_commands, daemon=True)
+    server_command_thread.start()
+
     while server_running:
         try:
             if not server_running:
@@ -139,5 +144,3 @@ main_thread.start()
 
 
 stop_event = threading.Event()
-server_command_thread = threading.Thread(target=server_commands)
-server_command_thread.start()

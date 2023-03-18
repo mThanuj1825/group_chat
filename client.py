@@ -16,7 +16,7 @@ root.title("Group Chat App")
 
 output_area = tkinter.Text(root, state="disabled")
 input_area = tkinter.Entry(root)
-
+input_area.bind("<Return>", lambda event: send_message())
 
 def send_message():
     global client
@@ -41,6 +41,8 @@ def recieve_messages():
         try:
             if client and server_connected:
                 msg = client.recv(1024).decode(FORMAT)
+                if not msg:
+                    break
                 output_area.config(state="normal")
                 output_area.insert(tkinter.END, msg)
                 output_area.config(state="disabled")
