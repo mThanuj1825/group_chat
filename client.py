@@ -16,7 +16,6 @@ root.title("Group Chat App")
 
 output_area = tkinter.Text(root, state="disabled")
 input_area = tkinter.Entry(root)
-input_area.bind("<Return>", lambda event: send_message())
 
 def send_message():
     global client
@@ -26,13 +25,15 @@ def send_message():
 
 
 def connect_to_server():
-    global ADDRESS, client, server_connected
+    global ADDRESS, client, server_connected, input_area, connect_button
     host_ip = input_area.get()
     input_area.delete(0, 'end')
     ADDRESS = (host_ip, PORT)
     client.connect(ADDRESS)
     connect_button.destroy()
     server_connected = True
+    input_area.bind("<Return>", lambda send_event: send_message())
+    
 
 
 def recieve_messages():
@@ -64,8 +65,8 @@ connect_button = tkinter.Button(
     root, text='Connect', command=connect_to_server)
 
 output_area.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-input_area.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
-send_button.grid(row=1, column=1, padx=5, pady=5)
+input_area.grid(row=1, column=0, columnspan = 2,padx=5, pady=5, sticky="EW")
+send_button.grid(row=2, column=0, padx=5, pady=5)
 connect_button.grid(row=2, column=0, padx=5, pady=5)
 
 
