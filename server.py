@@ -40,12 +40,15 @@ This function is used to handle the connections with individual clients
     global connected_clients
     # consider the first message sent to the server as a username of the client
     connected = True
-    client.send("Enter your username: ".encode(FORMAT))
-    username = client.recv(1024).decode(FORMAT)
-    # add an entry of the client with their respective username in the dictionary
-    connected_clients[client] = username
-    print(f"[NEW CONNECTION] {username} connected.")
-    broadcast_message(client, f"[NEW USER] {username} joined the chat room.\n".encode(FORMAT))
+    try:
+        client.send("Enter your username: ".encode(FORMAT))
+        username = client.recv(1024).decode(FORMAT)
+        # add an entry of the client with their respective username in the dictionary
+        connected_clients[client] = username
+        print(f"[NEW CONNECTION] {username} connected.")
+        broadcast_message(client, f"[NEW USER] {username} joined the chat room.\n".encode(FORMAT))
+    except ConnectionResetError:
+        pass
 
     while connected:  # infinite loop to recieve messages until there is an error or termination of the client socket
         try:  # try recieving a message or else disconnect the client
