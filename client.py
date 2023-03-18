@@ -26,7 +26,7 @@ def send_message():
 
 
 def connect_to_server():
-    global ADDRESS, client
+    global ADDRESS, client, server_connected
     host_ip = input_area.get()
     input_area.delete(0, 'end')
     ADDRESS = (host_ip, PORT)
@@ -36,7 +36,7 @@ def connect_to_server():
 
 
 def recieve_messages():
-    global client
+    global client, server_connected
     while True:
         try:
             if client and server_connected:
@@ -48,12 +48,21 @@ def recieve_messages():
             break
 
 
+def on_closing():
+    global client, server_connected
+    if client:
+        client.close()
+    server_connected = False
+    root.destroy()
+    exit(0)
+
+
 send_button = tkinter.Button(root, text='Send', command=send_message)
 connect_button = tkinter.Button(
     root, text='Connect', command=connect_to_server)
 
 output_area.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-input_area.grid(row=1, column=0, columnspan=2,padx=5, pady=5)
+input_area.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 send_button.grid(row=1, column=1, padx=5, pady=5)
 connect_button.grid(row=2, column=0, padx=5, pady=5)
 
@@ -62,4 +71,5 @@ recieve_thread = threading.Thread(target=recieve_messages)
 recieve_thread.start()
 
 
+root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()

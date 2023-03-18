@@ -25,9 +25,14 @@ It takes 2 arguments
 -> the message (must be encoded before itself)
     '''
     global connected_clients
-    for client in connected_clients:
+    for username in connected_clients.values():
+        client = list(connected_clients.keys())[
+            list(connected_clients.values()).index(username)]
         if client != sender_client:  # only send message if client is not the sender_client
             client.send(message)
+        else:
+            if not message.startswith("[NEW USER]"):
+                client.send(f"[YOU] {message.decode(FORMAT)}\n".encode(FORMAT))
 
 
 def handle_client(client):
@@ -42,11 +47,13 @@ This function is used to handle the connections with individual clients
     connected = True
     try:
         client.send("Enter your username: ".encode(FORMAT))
+        username = None
         username = client.recv(1024).decode(FORMAT)
         # add an entry of the client with their respective username in the dictionary
         connected_clients[client] = username
         print(f"[NEW CONNECTION] {username} connected.")
-        broadcast_message(client, f"[NEW USER] {username} joined the chat room.\n".encode(FORMAT))
+        broadcast_message(
+            client, f"[NEW USER] {username} joined the chat room.\n".encode(FORMAT))
     except ConnectionResetError:
         pass
 
@@ -60,7 +67,7 @@ This function is used to handle the connections with individual clients
                     # delete the disconnected ckient entry from the dictionary
                     del connected_clients[client]
                     broadcast_message(client,
-                                      f"[SERVER] {username} has left the chat.".encode(FORMAT))  # send the disconnected message to all the clients on the servers
+                                      f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
                     print(
                         f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after deletion
                     break
@@ -75,7 +82,7 @@ This function is used to handle the connections with individual clients
             broadcast_message(client,
                               f"[SERVER] {username} has left the chat.".encode(FORMAT))  # send the disconnected message to all the clients on the servers
             print(
-                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 1}")  # displays the total number of active / online clients in the server after deletion
+                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after deletion
             break
 
 
