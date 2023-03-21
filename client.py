@@ -15,6 +15,7 @@ def logo_screen():
     root = tkinter.Tk()
     logo = tkinter.PhotoImage(file="logo.png")
     root.geometry("653x465")
+    root.iconphoto(False, logo)
     root.resizable(False, False)
     label = tkinter.Label(root, image=logo)
     label.pack()
@@ -25,7 +26,9 @@ def logo_screen():
 def main_window():
     global host, PORT, ADDRESS, FORMAT, client, server_connected
     root = tkinter.Tk()
+    logo = tkinter.PhotoImage(file="logo.png")
     root.geometry("653x465")
+    root.iconphoto(False, logo)
     root.resizable(False, False)
     root.title("Group Chat App")
 
