@@ -50,6 +50,9 @@ This function is used to handle the connections with individual clients
         username = None
         username = client.recv(1024).decode(FORMAT)
         # add an entry of the client with their respective username in the dictionary
+        for c, u in connected_clients.copy().items():
+            if c == client and u != username:
+                del connected_clients[c]
         connected_clients[client] = username
         client.send((username + "\n").encode(FORMAT))
         print(f"[NEW CONNECTION] {username} connected.")
@@ -69,8 +72,7 @@ This function is used to handle the connections with individual clients
                     del connected_clients[client]
                     broadcast_message(client,
                                       f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
-                    print(
-                        f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after deletion
+                    print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after deletion
                     break
                 print(f"[{username}] {message}")
                 broadcast_message(
@@ -82,8 +84,7 @@ This function is used to handle the connections with individual clients
             del connected_clients[client]
             broadcast_message(client,
                               f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
-            print(
-                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after deletion
+            print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after deletion
             break
 
 
@@ -131,9 +132,10 @@ This function is used to run the main loop of the server
                 target=handle_client, args=(client, ))  # create a thread for every client addded in the server
             client_thread.start()  # start the client thread for the parallel execution of the clients
 
-            print(
-                f"[TOTAL CONNECTIONS] Online users: {threading.active_count() - 3}")  # displays the total number of active / online clients in the server after addition
+            print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after addition
         except:
+            for c in connected_clients:
+                c.close()
             print(f"[SERVER] Stopping the server...")
             print(f"[SERVER] Server closed")
 

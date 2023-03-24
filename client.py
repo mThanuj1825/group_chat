@@ -34,7 +34,9 @@ def main_window():
     root.resizable(False, False)
     root.title("Group Chat App")
 
-    output_area = tkinter.Text(root, state="disabled")
+    output_area = tkinter.Text(root)
+    output_area.insert(tkinter.END, "Welcome to Group Chat\nEnter IP address of the server:")
+    output_area.config(state="disabled")
     input_area = tkinter.Entry(root)
 
     def send_message():
@@ -46,6 +48,9 @@ def main_window():
     def connect_to_server():
         global host, PORT, ADDRESS, FORMAT, client, server_connected
         host_ip = input_area.get()
+        output_area.config(state="normal")
+        output_area.insert(tkinter.END, f"{host_ip}\n")
+        output_area.config(state="disabled")
         input_area.delete(0, 'end')
         ADDRESS = (host_ip, PORT)
         try:
@@ -55,7 +60,7 @@ def main_window():
             input_area.bind("<Return>", lambda send_event: send_message())
         except:
             output_area.config(state="normal")
-            output_area.insert(tkinter.END, "Invalid IP Address\n")
+            output_area.insert(tkinter.END, "\nInvalid IP Address\nEnter a valid IP Address: ")
             output_area.config(state="disabled")
 
     def recieve_messages():
@@ -88,8 +93,8 @@ def main_window():
 
     output_area.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
     input_area.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="EW")
-    send_button.grid(row=2, column=0, padx=5, pady=5)
-    connect_button.grid(row=2, column=0, padx=5, pady=5)
+    send_button.grid(row=2, column=0, columnspan=2,padx=5, pady=5)
+    connect_button.grid(row=2, column=0, columnspan=2,padx=5, pady=5)
 
     recieve_thread = threading.Thread(target=recieve_messages)
     recieve_thread.start()
