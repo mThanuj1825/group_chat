@@ -1,6 +1,8 @@
 import socket
 import threading
 import tkinter
+from tkinter import filedialog
+import os
 
 host = None  # the host ip address
 PORT = 55555  # port on which the hosting is taking place
