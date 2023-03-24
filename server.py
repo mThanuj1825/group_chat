@@ -1,5 +1,6 @@
 import socket
 import threading
+import os
 
 HOST = socket.gethostbyname(socket.gethostname())  # the host ip address
 PORT = 55555  # port on which the hosting is taking place
@@ -74,6 +75,7 @@ This function is used to handle the connections with individual clients
                                       f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
                     print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after deletion
                     break
+                    
                 print(f"[{username}] {message}")
                 broadcast_message(
                     client, f"[{username}] {message}\n".encode(FORMAT))
@@ -95,7 +97,7 @@ This function handles the stoppage of the server by a specific command
     global server, connected_clients, server_running
     while True:
         command = input("[COMMAND] ")
-        if command == "/tnt":
+        if command == "/stop":
             server_running = False
             server.close()
             if len(connected_clients) != 0:
