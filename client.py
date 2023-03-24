@@ -92,14 +92,11 @@ def main_window():
     send_button = tkinter.Button(root, text='Send', command=send_message)
     connect_button = tkinter.Button(
         root, text='Connect', command=connect_to_server)
-    attatchment_button = tkinter.Button(
-        root, text="📎", command=send_attachment)
 
     output_area.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
     input_area.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="EW")
     send_button.grid(row=2, column=0, columnspan=1, padx=5, pady=5)
     connect_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
-    attatchment_button.grid(row=2, column=1, columnspan=1, padx=5, pady=5)
 
     recieve_thread = threading.Thread(target=recieve_messages)
     recieve_thread.start()
