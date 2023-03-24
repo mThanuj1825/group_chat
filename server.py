@@ -73,12 +73,26 @@ This function is used to handle the connections with individual clients
                     del connected_clients[client]
                     broadcast_message(client,
                                       f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
-                    print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after deletion
+                    # displays the total number of active / online clients in the server after deletion
+                    print(
+                        f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")
                     break
-                    
-                print(f"[{username}] {message}")
-                broadcast_message(
-                    client, f"[{username}] {message}\n".encode(FORMAT))
+                elif message.startswith("<FILE>"):
+                    file_name = message[6:]
+                    file_data = b""
+                    while True:
+                        data = client.recv(1024)
+                        if data == b"<END>":
+                            break
+                        file_data += data
+                    with open(file_name, "wb") as f:
+                        f.write(file_data)
+                    print(f"[{username}] sent a file: {file_name}")
+                    broadcast_message(client, f"[{username}] sent a file: {file_name}\n".encode(FORMAT))
+                else:
+                    print(f"[{username}] {message}")
+                    broadcast_message(
+                        client, f"[{username}] {message}\n".encode(FORMAT))
         except ConnectionResetError:
             connected = False
             print(f"[DISCONNECTED] {username} disconnected.")
@@ -86,7 +100,9 @@ This function is used to handle the connections with individual clients
             del connected_clients[client]
             broadcast_message(client,
                               f"[SERVER] {username} has left the chat.\n".encode(FORMAT))  # send the disconnected message to all the clients on the servers
-            print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after deletion
+            # displays the total number of active / online clients in the server after deletion
+            print(
+                f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")
             break
 
 
@@ -97,7 +113,7 @@ This function handles the stoppage of the server by a specific command
     global server, connected_clients, server_running
     while True:
         command = input("[COMMAND] ")
-        if command == "/stop":
+        if command == "/tnt":
             server_running = False
             server.close()
             if len(connected_clients) != 0:
@@ -134,7 +150,9 @@ This function is used to run the main loop of the server
                 target=handle_client, args=(client, ))  # create a thread for every client addded in the server
             client_thread.start()  # start the client thread for the parallel execution of the clients
 
-            print(f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")  # displays the total number of active / online clients in the server after addition
+            # displays the total number of active / online clients in the server after addition
+            print(
+                f"[TOTAL CONNECTIONS] Online users: {len(connected_clients)}")
         except:
             for c in connected_clients:
                 c.close()

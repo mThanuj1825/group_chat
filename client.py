@@ -87,16 +87,29 @@ def main_window():
         root.destroy()
         exit(0)
 
+    def send_file():
+        global client, FORMAT
+        file_path = filedialog.askopenfilename()
+        file_name = os.path.basename(file_path)
+        client.send(f"<FILE>{file_name}".encode(FORMAT))
+
+        with open(file_path, "rb") as file:
+            file_data = file.read()
+            client.sendall(file_data)
+        client.send(b"<END>")
+
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
     send_button = tkinter.Button(root, text='Send', command=send_message)
     connect_button = tkinter.Button(
         root, text='Connect', command=connect_to_server)
+    file_button = tkinter.Button(root, text="Send File", command=send_file)
 
     output_area.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
     input_area.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="EW")
     send_button.grid(row=2, column=0, columnspan=1, padx=5, pady=5)
-    connect_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+    connect_button.grid(row=2, column=0, columnspan=1, padx=5, pady=5)
+    file_button.grid(row=2, column=1, columnspan=1, padx=5, pady=5)
 
     recieve_thread = threading.Thread(target=recieve_messages)
     recieve_thread.start()
