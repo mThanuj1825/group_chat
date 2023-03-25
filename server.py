@@ -88,7 +88,8 @@ This function is used to handle the connections with individual clients
                     with open(file_name, "wb") as f:
                         f.write(file_data)
                     print(f"[{username}] sent a file: {file_name}")
-                    broadcast_message(client, f"[{username}] sent a file: {file_name}\n".encode(FORMAT))
+                    broadcast_message(
+                        client, f"[{username}] sent a file: {file_name}\n".encode(FORMAT))
                 else:
                     print(f"[{username}] {message}")
                     broadcast_message(
