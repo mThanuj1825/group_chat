@@ -94,9 +94,12 @@ def main_window():
         client.send(f"<FILE>{file_name}".encode(FORMAT))
 
         with open(file_path, "rb") as file:
-            file_data = file.read()
-            client.sendall(file_data)
-        client.send(b"<END>")
+            while True:
+                file_data = file.read(1024)
+                if not file_data:
+                    break
+                client.sendall(file_data)
+            client.send(b"<END>")
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
